@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using TaskApi.Data;
-using TaskApi.Middleware;
 using System.Text.Json.Serialization;
+using TaskApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseUrls("http://localhost:5000");
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -14,19 +15,15 @@ builder.Services.AddControllers()
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("Default", p => p
+        .WithOrigins("http://localhost:4200")
         .AllowAnyHeader()
-        .AllowAnyMethod()
-        .WithOrigins(
-            builder.Configuration["Cors:Frontend"] ?? "http://localhost:4200")
-        .AllowCredentials());
+        .AllowAnyMethod());
 });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -35,12 +32,12 @@ app.UseCors("Default");
 
 app.MapControllers();
 
-// Apply migrations automatically in dev
+// dev auto-applied migrations test 
 using (var scope = app.Services.CreateScope())
 {
-    var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     if (app.Environment.IsDevelopment())
-        ctx.Database.Migrate();
+        db.Database.Migrate();
 }
 
 app.Run();

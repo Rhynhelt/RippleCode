@@ -7,6 +7,21 @@ export class LoadingService {
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
   readonly loading$ = this._loading$.asObservable();
 
-  start() { if (++this.count === 1) this._loading$.next(true); }
-  stop()  { if (this.count > 0 && --this.count === 0) this._loading$.next(false); }
+  private async emitAsync(value: boolean) {
+    // Defer to the next microtask to avoid ExpressionChangedAfterItHasBeenCheckedError
+    await Promise.resolve();
+    this._loading$.next(value);
+  }
+
+  start() {
+    if (++this.count === 1) {
+      this.emitAsync(true);
+    }
+  }
+
+  stop() {
+    if (this.count > 0 && --this.count === 0) {
+      this.emitAsync(false);
+    }
+  }
 }
