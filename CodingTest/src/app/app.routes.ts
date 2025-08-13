@@ -6,22 +6,11 @@ export const routes: Routes = [
     path: '',
     component: LayoutComponent,
     children: [
-      {
-        path: '',
-        redirectTo: 'tasks',
-        pathMatch: 'full'
-      },
+      { path: '', pathMatch: 'full', redirectTo: 'tasks' },
       {
         path: 'tasks',
-        loadComponent: () => import('./features/tasks/pages/task-list/task-list.component').then(m => m.TaskListComponent)
-      },
-      {
-        path: 'tasks/new',
-        loadComponent: () => import('./features/tasks/pages/task-form/task-form.component').then(m => m.TaskFormComponent)
-      },
-      {
-        path: 'tasks/:id',
-        loadComponent: () => import('./features/tasks/pages/task-detail/task-detail.component').then(m => m.TaskDetailComponent)
+        loadChildren: () =>
+          import('./features/tasks/tasks.module').then(m => m.TasksModule)
       }
     ]
   }

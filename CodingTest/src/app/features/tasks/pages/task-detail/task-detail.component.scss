@@ -1,0 +1,13 @@
+.title { margin: 0 0 8px; }
+.desc { color:#555; margin: 0 0 12px; }
+.meta { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+.actions { display:flex; align-items:center; gap:12px; }
+.flex-1 { flex: 1 1 auto; }
+.skeleton { padding:24px; color:#666; }
+.error { color:#b00020; }
+mat-chip.low { background:#e8f5e9; }
+mat-chip.medium { background:#e3f2fd; }
+mat-chip.high { background:#fff3e0; }
+mat-chip.pending { background:#eceff1; }
+mat-chip.inprogress { background:#e0f2f1; }
+mat-chip.completed { background:#e8f5e9; }

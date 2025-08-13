@@ -1,1 +1,21 @@
-<p>task-detail works!</p>
+<ng-container *ngIf="loading; else content">
+  <div class="skeleton">Loading…</div>
+</ng-container>
+
+<ng-template #content>
+  <ng-container *ngIf="task; else err">
+    <h2 class="title">{{task.title}}</h2>
+    <p class="desc" *ngIf="task.description">{{task.description}}</p>
+    <div class="meta">
+      <span><strong>Due:</strong> {{task.dueDate | date:'mediumDate'}}</span>
+      <span><strong>Priority:</strong> <mat-chip [ngClass]="task.priority.toLowerCase()">{{task.priority}}</mat-chip></span>
+      <span><strong>Status:</strong> <mat-chip [ngClass]="task.status.toLowerCase()">{{task.status}}</mat-chip></span>
+    </div>
+    <div class="actions">
+      <button mat-stroked-button (click)="back()">Back</button>
+      <span class="flex-1"></span>
+      <button mat-flat-button color="primary" (click)="edit()">Edit</button>
+    </div>
+  </ng-container>
+  <ng-template #err><div class="error">{{error}}</div></ng-template>
+</ng-template>

@@ -1,92 +1,96 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
-import { TaskService } from '../../../../services/task.service';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { debounceTime } from 'rxjs';
 import { Task } from '../../../../models/task.model';
+import { TaskService } from '../../../../services/task.service';
 
 @Component({
   selector: 'app-task-list',
-  standalone: true,
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, RouterModule],
-  template: `
-    <div class="task-list-container">
-      <table mat-table [dataSource]="tasks">
-        <ng-container matColumnDef="title">
-          <th mat-header-cell *matHeaderCellDef>Title</th>
-          <td mat-cell *matCellDef="let task">{{task.title}}</td>
-        </ng-container>
-        <ng-container matColumnDef="dueDate">
-          <th mat-header-cell *matHeaderCellDef>Due Date</th>
-          <td mat-cell *matCellDef="let task">{{task.dueDate | date}}</td>
-        </ng-container>
-        <ng-container matColumnDef="priority">
-          <th mat-header-cell *matHeaderCellDef>Priority</th>
-          <td mat-cell *matCellDef="let task">{{task.priority}}</td>
-        </ng-container>
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let task">{{task.status}}</td>
-        </ng-container>
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let task">
-            <button mat-icon-button [routerLink]="[task.id]">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="deleteTask(task.id)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-
-      <button mat-fab color="primary" class="fab-button" routerLink="new">
-        <mat-icon>add</mat-icon>
-      </button>
-    </div>
-  `,
-  styles: [`
-    .task-list-container {
-      padding: 20px;
-      position: relative;
-    }
-    table {
-      width: 100%;
-    }
-    .fab-button {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-    }
-  `]
+  templateUrl: './task-list.component.html',
+  styleUrls: ['./task-list.component.scss']
 })
-export class TaskListComponent implements OnInit {
-  tasks: Task[] = [];
+export class TaskListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['title', 'dueDate', 'priority', 'status', 'actions'];
+  dataSource = new MatTableDataSource<Task>([]);
 
-  constructor(private taskService: TaskService) {}
+  // filter options (match your model values)
+  priorities: Array<Task['priority']> = ['Low', 'Medium', 'High'];
+  statuses: Array<Task['status']> = ['Pending', 'InProgress', 'Completed'];
 
-  ngOnInit(): void {
-    this.loadTasks();
-  }
+  filters: FormGroup;
 
-  loadTasks(): void {
-    this.taskService.getTasks().subscribe(tasks => {
-      this.tasks = tasks;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  constructor(private fb: FormBuilder, private taskService: TaskService) {
+    // Build form in constructor to avoid "used before initialization"
+    this.filters = this.fb.group({
+      title: [''],
+      priority: [''],
+      status: ['']
     });
   }
 
+  // Safe wrapper for template (Angular strict templates don't know global navigator)
+  get isOnline(): boolean {
+    return typeof navigator !== 'undefined' && navigator.onLine;
+  }
+
+  ngOnInit(): void {
+    // Configure filtering logic
+    this.dataSource.filterPredicate = (data: Task, filterJson: string) => {
+      const f = JSON.parse(filterJson || '{}') as { title?: string; priority?: string; status?: string };
+      const matchesTitle =
+        !f.title || (data.title ?? '').toLowerCase().includes(String(f.title).toLowerCase());
+      const matchesPriority = !f.priority || data.priority === f.priority;
+      const matchesStatus = !f.status || data.status === f.status;
+      return matchesTitle && matchesPriority && matchesStatus;
+    };
+
+    // React to filter changes
+    this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyFilter());
+
+    // Initial load
+    this.loadTasks();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  loadTasks(): void {
+    // No params (keeps compatibility with your current service)
+    this.taskService.getTasks().subscribe(tasks => {
+      this.dataSource.data = tasks || [];
+      this.applyFilter();
+    });
+  }
+
+  applyFilter(): void {
+    const { title, priority, status } = this.filters.value;
+    this.dataSource.filter = JSON.stringify({ title, priority, status });
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+  }
+
+  clearFilters(): void {
+    this.filters.reset({ title: '', priority: '', status: '' });
+  }
+
+  pageChange(): void {
+    // MatTableDataSource + MatPaginator handle paging automatically; nothing else needed
+  }
+
+  sortChange(): void {
+    // MatTableDataSource + MatSort handle sorting automatically; nothing else needed
+  }
+
   deleteTask(id: number): void {
-    if (confirm('Are you sure you want to delete this task?')) {
-      this.taskService.deleteTask(id).subscribe(() => {
-        this.loadTasks();
-      });
+    if (confirm('Delete this task? This action cannot be undone.')) {
+      this.taskService.deleteTask(id).subscribe(() => this.loadTasks());
     }
   }
 }
