@@ -11,13 +11,13 @@ SQL: localhost,1433 (sa/Your_password123)
 - Deploy: Docker & docker-compose
 
 Notes:
-Server-side filtering/sorting/pagination to support large datasets.
+`Server-side filtering/sorting/pagination to support large datasets.
 Enums serialized as strings for readability.
 Basic global error middleware returns Problem Details.
 Offline banner uses navigator.onLine; requests aren’t queued offline.
-Unit test service methods (API and Angular)
-E2E tests for create/edit/delete flows
-
+Unit test service methods (API and Angular).
+E2E tests for create/edit/delete flows.
+`
 ## Initial Setup Instructions
 1. Clone the repository
 2. Install dependencies:
@@ -40,7 +40,8 @@ cd backend
 dotnet restore
 dotnet ef migrations add InitialCreate
 dotnet ef database update
-dotnet run ```
+dotnet run
+```
 
 ## Frontend Setup:
 Not much different here really. Enter the root folder and start Angular via: ng serve
@@ -142,28 +143,21 @@ repo/
       ├─ app.config.server.ts
       ├─ app.config.ts
       └─ app.routes.ts
-      ```
+```
 
 
 ## Database Schema
+```
 Table: Tasks
-
 Id (int, PK, identity)
-
 Title (nvarchar(120), required)
-
 Description (nvarchar(max))
-
 DueDate (datetime2, nullable)
-
 Priority (nvarchar(24))
-
 Status (nvarchar(24))
-
 CreatedAt (datetime2)
-
 UpdatedAt (datetime2)
-
+```
 
 ## Completed Development Tasks
 Completed Tasks: 1 - 2 - 3 - 4 - 5 - 6* - 7 - 8** - 9 - 10
