@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace TaskApi.Dtos
 {
     public class PagedResult<T>
@@ -14,7 +16,8 @@ namespace TaskApi.Dtos
         public string? Priority { get; set; } // enum name
         public string? Status { get; set; }   // enum name
         public string? SortBy { get; set; }   // title, dueDate, priority, status, createdAt
-        public string? SortDir { get; set; }  // asc|desc
+        public string? SortDir { get; set; }  // asc | desc
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }
+}
