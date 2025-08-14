@@ -12,11 +12,28 @@ namespace TaskApi.Services
             if (!string.IsNullOrWhiteSpace(query.Title))
                 q = q.Where(t => t.Title.Contains(query.Title));
 
-            if (Enum.TryParse<Priority>(query.Priority, true, out var pr))
+            if (!string.IsNullOrWhiteSpace(query.Priority) &&
+                Enum.TryParse<Priority>(query.Priority, true, out var pr))
+            {
                 q = q.Where(t => t.Priority == pr);
+            }
 
-            if (Enum.TryParse<Status>(query.Status, true, out var st))
-                q = q.Where(t => t.Status == st);
+            if (!string.IsNullOrWhiteSpace(query.Status))
+            {
+                var raw = query.Status.Trim();
+
+                // Normalize common labels/spaces to enum names
+                // e.g. "In Progress" -> "InProgress", "Pending" -> "Todo", "Completed" -> "Done"
+                var normalized = raw.Replace(" ", "", StringComparison.OrdinalIgnoreCase);
+                normalized = normalized.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "Todo" :
+                             normalized.Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "Done" :
+                             normalized;
+
+                if (Enum.TryParse<Status>(normalized, true, out var st))
+                {
+                    q = q.Where(t => t.Status == st);
+                }
+            }
 
             return q;
         }
