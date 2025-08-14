@@ -160,9 +160,9 @@ UpdatedAt (datetime2)
 ```
 
 ## Completed Development Tasks
-Completed Tasks: 1 - 2 - 3 - 4 - 5 - 6* - 7 - 8** - 9 - 10
-* Some of the unique SQL queries I never got around to making. However, I did achieve similar or identical functions through other methods.
-** Incorrect dates or backend fault will respond with a popup for the user as well as confirmation prior to deletion.
+Completed Tasks: 1 - 2 - 3 - 4 - 5 - 6* - 7 - 8* - 9 - 10
+* 6: Some of the unique SQL queries I never got around to making. However, I did achieve similar or identical functions through other methods.
+* 8: Incorrect dates or backend fault will respond with a popup for the user as well as confirmation prior to deletion.
 
 Below is were the standard statements that specified what was expected at a minimum and I'll include them here since they were covered in the project.
 
