@@ -176,3 +176,10 @@ Below is were the standard statements that specified what was expected at a mini
 3. Add form validation and error handling
 
 4. Implement sorting and filtering in the task list
+
+## Challenges / Additions
+Ports & HTTPS: Dev runs on HTTP:5000 to avoid HTTPS redirect issues, code and system conflict expected https.
+Enum Normalization: Frontend interceptor + server filter normalization accept UI labels and map to API enums. It appears differently on frontend versus backend so this was needed to standardize.
+Animations: Enabled to support Angular Material’s form-field messages.
+DB Options: Supports both LocalDB and Dockerized SQL.
+Containers: Dockerfiles and docker-compose.yml added for local development and easy deployment.
