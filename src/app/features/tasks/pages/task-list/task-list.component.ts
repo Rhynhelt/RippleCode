@@ -1,118 +1,96 @@
-// src/app/features/tasks/pages/task-list/task-list.component.ts
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort, Sort } from '@angular/material/sort';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { debounceTime } from 'rxjs';
-
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { TaskService, TaskQuery } from '../../../../services/task.service';
-import { PagedResult, Priority, Status, Task } from '../../../../models/task.model';
+import { Task } from '../../../../models/task.model';
+import { TaskService } from '../../../../services/task.service';
 
 @Component({
   selector: 'app-task-list',
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.scss']
 })
-export class TaskListComponent implements OnInit {
-  // Avoids "used before initialization" with class field initializers
-  private fb = inject(FormBuilder);
-  private api = inject(TaskService);
-  private dialog = inject(MatDialog);
+export class TaskListComponent implements OnInit, AfterViewInit {
+  displayedColumns: string[] = ['title', 'dueDate', 'priority', 'status', 'actions'];
+  dataSource = new MatTableDataSource<Task>([]);
 
-  displayedColumns = ['title', 'dueDate', 'priority', 'status', 'actions'];
-  data: Task[] = [];
-  total = 0;
-  pageSize = 10;
+  // filter options (match your model values)
+  readonly statuses: string[]   = ['Todo', 'InProgress', 'Done', 'Blocked'];
+  readonly priorities: string[] = ['Low', 'Medium', 'High', 'Critical'];
 
-  // Strongly-typed default query
-  query: TaskQuery = {
-    pageNumber: 1,
-    pageSize: this.pageSize,
-    sortBy: 'createdAt',
-    sortDir: 'desc'
-  };
-
-  priorities = Object.values(Priority);
-  statuses = Object.values(Status);
+  filters: FormGroup;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // Form values can be null; type them accordingly
-  filterForm = this.fb.group({
-    title: ['' as string | null],
-    priority: ['' as '' | Priority | null],
-    status: ['' as '' | Status | null]
-  });
-
-  ngOnInit(): void {
-    this.load();
-
-    this.filterForm.valueChanges
-      .pipe(debounceTime(300))
-      .subscribe(v => {
-        // Coerce nulls to the exact TaskQuery shape
-        this.query = {
-          ...this.query,
-          pageNumber: 1,
-          title: v.title ?? undefined, // TaskQuery.title?: string | undefined
-          priority: (v.priority ?? '') as TaskQuery['priority'],
-          status: (v.status ?? '') as TaskQuery['status']
-        };
-        this.load();
-      });
-  }
-
-  load(): void {
-    this.api.getTasks(this.query).subscribe((res: PagedResult<Task>) => {
-      this.data = res.items;
-      this.total = res.totalCount;
-      this.pageSize = res.pageSize;
+  constructor(private fb: FormBuilder, private taskService: TaskService) {
+    // Build form in constructor to avoid "used before initialization"
+    this.filters = this.fb.group({
+      title: [''],
+      priority: [''],
+      status: ['']
     });
   }
 
-  pageChange(e: PageEvent): void {
-    this.query = {
-      ...this.query,
-      pageNumber: e.pageIndex + 1,
-      pageSize: e.pageSize
-    };
-    this.load();
+  // Safe wrapper for template (Angular strict templates don't know global navigator)
+  get isOnline(): boolean {
+    return typeof navigator !== 'undefined' && navigator.onLine;
   }
 
-  sortChange(s: Sort): void {
-    // Narrow MatSort.active (string) to allowed union
-    const allowed: ReadonlyArray<TaskQuery['sortBy']> = [
-      'title',
-      'dueDate',
-      'priority',
-      'status',
-      'createdAt'
-    ];
-    const sortBy = (allowed.includes(s.active as any)
-      ? (s.active as TaskQuery['sortBy'])
-      : 'createdAt');
+  ngOnInit(): void {
+    // Configure filtering logic
+    this.dataSource.filterPredicate = (data: Task, filterJson: string) => {
+      const f = JSON.parse(filterJson || '{}') as { title?: string; priority?: string; status?: string };
+      const matchesTitle =
+        !f.title || (data.title ?? '').toLowerCase().includes(String(f.title).toLowerCase());
+      const matchesPriority = !f.priority || data.priority === f.priority;
+      const matchesStatus = !f.status || data.status === f.status;
+      return matchesTitle && matchesPriority && matchesStatus;
+    };
 
-    const sortDir: 'asc' | 'desc' = (s.direction === 'desc' ? 'desc' : 'asc');
+    // React to filter changes
+    this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyFilter());
 
-    this.query = { ...this.query, sortBy, sortDir };
-    this.load();
+    // Initial load
+    this.loadTasks();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  loadTasks(): void {
+    // No params (keeps compatibility with your current service)
+    this.taskService.getTasks().subscribe(tasks => {
+      this.dataSource.data = tasks || [];
+      this.applyFilter();
+    });
+  }
+
+  applyFilter(): void {
+    const { title, priority, status } = this.filters.value;
+    this.dataSource.filter = JSON.stringify({ title, priority, status });
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
   clearFilters(): void {
-    this.filterForm.reset({ title: '', priority: '', status: '' });
+    this.filters.reset({ title: '', priority: '', status: '' });
   }
 
-  delete(id: number): void {
-    this.dialog
-      .open(ConfirmDialogComponent, {
-        data: { title: 'Delete task?', text: 'This action cannot be undone.' }
-      })
-      .afterClosed()
-      .subscribe(ok => {
-        if (ok) this.api.deleteTask(id).subscribe(() => this.load());
-      });
+  pageChange(): void {
+    // MatTableDataSource + MatPaginator handle paging automatically; nothing else needed
+  }
+
+  sortChange(): void {
+    // MatTableDataSource + MatSort handle sorting automatically; nothing else needed
+  }
+
+  deleteTask(id: number): void {
+    if (confirm('Delete this task? This action cannot be undone.')) {
+      this.taskService.deleteTask(id).subscribe(() => this.loadTasks());
+    }
   }
 }

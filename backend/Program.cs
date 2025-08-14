@@ -35,8 +35,4 @@ app.UseCors("Default");
 
 app.MapControllers();
 
-<<<<<<< HEAD
 app.Run();
-=======
-app.Run();
->>>>>>> Backend-rework
