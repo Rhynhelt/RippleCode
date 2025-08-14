@@ -6,7 +6,7 @@ import {
 } from "./chunk-2FR3BTHA.js";
 import {
   MatCommonModule
-} from "./chunk-LKAYNIMX.js";
+} from "./chunk-L5P3DPMP.js";
 import {
   DOCUMENT
 } from "./chunk-BCJXMII6.js";

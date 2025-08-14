@@ -13,7 +13,15 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TaskApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7342371b36820ea00489f04fb32459c4a7989dfa")]
+=======
+<<<<<<<< HEAD:CodingTest/TaskApi/obj/Debug/net9.0/TaskApi.AssemblyInfo.cs
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7342371b36820ea00489f04fb32459c4a7989dfa")]
+========
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e57d9b6756e0e26b5f49b4e122e478c73b4b81d")]
+>>>>>>>> Backend-rework:CodingTest/backend/obj/Debug/net8.0/TaskApi.AssemblyInfo.cs
+>>>>>>> Backend-rework
 [assembly: System.Reflection.AssemblyProductAttribute("TaskApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TaskApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

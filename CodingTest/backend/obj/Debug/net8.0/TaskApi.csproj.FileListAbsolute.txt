@@ -1,4 +1,10 @@
 C:\Users\Ahmed\Documents\Coding Projects\RippleCode\CodingTest\backend\bin\Debug\net8.0\appsettings.json
+<<<<<<< HEAD
+=======
+C:\Users\Ahmed\Documents\Coding Projects\RippleCode\CodingTest\backend\bin\Debug\net8.0\TaskApi\appsettings.Development.json
+C:\Users\Ahmed\Documents\Coding Projects\RippleCode\CodingTest\backend\bin\Debug\net8.0\TaskApi\appsettings.json
+C:\Users\Ahmed\Documents\Coding Projects\RippleCode\CodingTest\backend\bin\Debug\net8.0\TaskApi\Properties\launchSettings.json
+>>>>>>> Backend-rework
 C:\Users\Ahmed\Documents\Coding Projects\RippleCode\CodingTest\backend\bin\Debug\net8.0\TaskApi.staticwebassets.endpoints.json
 C:\Users\Ahmed\Documents\Coding Projects\RippleCode\CodingTest\backend\bin\Debug\net8.0\TaskApi.exe
 C:\Users\Ahmed\Documents\Coding Projects\RippleCode\CodingTest\backend\bin\Debug\net8.0\TaskApi.deps.json

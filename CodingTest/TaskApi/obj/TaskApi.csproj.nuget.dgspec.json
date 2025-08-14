@@ -1,30 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi\\TaskApi.csproj": {}
+    "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi\\TaskApi.csproj": {
+    "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi\\TaskApi.csproj",
+        "projectUniqueName": "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi.csproj",
         "projectName": "TaskApi",
-        "projectPath": "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi\\TaskApi.csproj",
+        "projectPath": "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi.csproj",
         "packagesPath": "C:\\Users\\Ahmed\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\TaskApi\\obj\\",
+        "outputPath": "C:\\Users\\Ahmed\\Documents\\Coding Projects\\RippleCode\\CodingTest\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -41,26 +41,27 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.AspNetCore.OpenApi": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.8, )"
+              "version": "[8.0.*, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[9.0.8, )"
+              "version": "[8.0.*, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.8, )"
+              "version": "[8.0.*, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[9.0.3, )"
+              "version": "[6.5.0, )"
             }
           },
           "imports": [
