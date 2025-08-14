@@ -40,7 +40,7 @@ cd backend
 dotnet restore
 dotnet ef migrations add InitialCreate
 dotnet ef database update
-dotnet run```
+dotnet run ```
 
 ## Frontend Setup:
 Not much different here really. Enter the root folder and start Angular via: ng serve
