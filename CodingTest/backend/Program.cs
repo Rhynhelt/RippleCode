@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using TaskApi.Data;
+using TaskApi.Data; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +20,13 @@ builder.Services.AddCors(opt =>
         .AllowAnyMethod());
 });
 
+// swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// app.UseHttpsRedirection()
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -31,13 +34,5 @@ app.UseSwaggerUI();
 app.UseCors("Default");
 
 app.MapControllers();
-
-// dev auto-applied migrations test 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (app.Environment.IsDevelopment())
-        db.Database.Migrate();
-}
 
 app.Run();

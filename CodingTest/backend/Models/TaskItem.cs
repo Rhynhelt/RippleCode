@@ -13,14 +13,10 @@ namespace TaskApi.Models
         public string Title { get; set; } = null!;
 
         public string? Description { get; set; }
-
         public DateTime? DueDate { get; set; }
 
-        [Required]
-        public Priority Priority { get; set; } = Priority.Medium;
-
-        [Required]
-        public Status Status { get; set; } = Status.Todo;
+        [Required] public Priority Priority { get; set; } = Priority.Medium;
+        [Required] public Status Status { get; set; } = Status.Todo;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

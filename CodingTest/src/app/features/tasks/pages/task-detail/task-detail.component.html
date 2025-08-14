@@ -1,21 +1,32 @@
-<ng-container *ngIf="loading; else content">
-  <div class="skeleton">Loading…</div>
+<ng-container *ngIf="loading">
+  <div class="skeleton">Loading task…</div>
 </ng-container>
 
-<ng-template #content>
-  <ng-container *ngIf="task; else err">
-    <h2 class="title">{{task.title}}</h2>
-    <p class="desc" *ngIf="task.description">{{task.description}}</p>
-    <div class="meta">
-      <span><strong>Due:</strong> {{task.dueDate | date:'mediumDate'}}</span>
-      <span><strong>Priority:</strong> <mat-chip [ngClass]="task.priority.toLowerCase()">{{task.priority}}</mat-chip></span>
-      <span><strong>Status:</strong> <mat-chip [ngClass]="task.status.toLowerCase()">{{task.status}}</mat-chip></span>
-    </div>
-    <div class="actions">
-      <button mat-stroked-button (click)="back()">Back</button>
-      <span class="flex-1"></span>
-      <button mat-flat-button color="primary" (click)="edit()">Edit</button>
-    </div>
-  </ng-container>
-  <ng-template #err><div class="error">{{error}}</div></ng-template>
-</ng-template>
+<ng-container *ngIf="!loading && task as t">
+  <h2 class="title">{{ t.title }}</h2>
+  <p class="desc" *ngIf="t.description">{{ t.description }}</p>
+
+  <div class="meta">
+    <span><strong>Due:</strong> {{ t.dueDate | date:'mediumDate' }}</span>
+    <span>
+      <strong>Priority:</strong>
+      <mat-chip-set>
+        <mat-chip [ngClass]="t.priority.toLowerCase()">{{ t.priority }}</mat-chip>
+      </mat-chip-set>
+    </span>
+    <span>
+      <strong>Status:</strong>
+      <mat-chip-set>
+        <mat-chip [ngClass]="t.status.toLowerCase()">{{ t.status }}</mat-chip>
+      </mat-chip-set>
+    </span>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button (click)="back()">Back</button>
+    <span class="flex-1"></span>
+    <button mat-flat-button color="primary" (click)="edit()">Edit</button>
+  </div>
+</ng-container>
+
+<div *ngIf="error" class="error">{{ error }}</div>

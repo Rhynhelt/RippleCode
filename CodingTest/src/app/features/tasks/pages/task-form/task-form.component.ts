@@ -1,84 +1,84 @@
-import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Task } from '../../../../models/task.model';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TaskService } from '../../../../services/task.service';
-
-// Inline validator to avoid extra imports/files
-function dueDateNotPast(control: AbstractControl): ValidationErrors | null {
-  const v = control.value as Date | null;
-  if (!v) return null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const d = new Date(v);   d.setHours(0, 0, 0, 0);
-  return d < today ? { pastDate: true } : null;
-}
+import { Priority, Status, Task } from '../../../../models/task.model';
+import { dueDateNotPast } from '../../../../shared/validators/date.validators';
 
 @Component({
   selector: 'app-task-form',
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.scss']
 })
-export class TaskFormComponent implements OnInit {
+export class TaskFormComponent {
+  private fb = inject(FormBuilder);
+  private api = inject(TaskService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  priorities = Object.values(Priority);
+  statuses   = Object.values(Status);
+
   id?: number;
-  taskForm: FormGroup;
+  isEdit = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private taskService: TaskService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
-    // Build form in constructor to avoid "used before initialization"
-    this.taskForm = this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(120)]],
-      description: [''],
-      dueDate: [null, [dueDateNotPast]],
-      // keep values aligned with your model/service
-      priority: ['Medium', Validators.required],
-      status: ['Pending', Validators.required]
-    });
-  }
+  form = this.fb.group({
+    title: this.fb.control<string>('', [Validators.required, Validators.maxLength(120)]),
+    description: this.fb.control<string>(''),
+    dueDate: this.fb.control<Date | null>(null, [dueDateNotPast()]),
+    priority: this.fb.control<Priority>(Priority.Medium, [Validators.required]),
+    status: this.fb.control<Status>(Status.Todo, [Validators.required])
+  });
 
-  // Safe wrapper for template
-  get isOnline(): boolean {
-    return typeof navigator !== 'undefined' && navigator.onLine;
-  }
-
-  get fc() { return this.taskForm.controls as Record<string, AbstractControl>; }
-
-  ngOnInit(): void {
+  constructor() {
     const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam && this.router.url.endsWith('/edit')) {
+    if (idParam && idParam !== 'new') {
+      this.isEdit = true;
       this.id = Number(idParam);
-      this.taskService.getTask(this.id).subscribe(task => {
-        // If backend returns ISO string for dueDate, Angular datepicker will still accept it
-        this.taskForm.patchValue(task);
+      this.api.getTask(this.id).subscribe((t: Task) => {
+        this.form.patchValue({
+          title: t.title,
+          description: t.description ?? '',
+          dueDate: t.dueDate ? new Date(t.dueDate) : null,
+          priority: t.priority,
+          status: t.status
+        });
       });
     }
   }
 
-  onSubmit(): void {
-    if (this.taskForm.invalid) {
-      this.taskForm.markAllAsTouched();
+  // pretty much print enum values (InProgress → In Progress, Todo → To Do)
+  label(v: string) {
+    return v.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^Todo$/, 'To Do');
+  }
+
+  save() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
+    const v = this.form.getRawValue();
+    const nowIso = new Date().toISOString();
 
-    const payload = this.taskForm.value as Task;
+    const taskForApi: Task = {
+      id: this.id ?? 0, // 0 for create; backend ignores on POST
+      title: v.title!,
+      description: v.description?.trim() || '',
+      dueDate: v.dueDate ? v.dueDate.toISOString() : undefined,
+      priority: v.priority!,
+      status: v.status!,
+      createdAt: nowIso,   // backend ignores on POST/PUT
+      updatedAt: nowIso
+    };
 
-    if (this.id) {
-      this.taskService.updateTask(this.id, payload).subscribe(() => {
-        this.router.navigate(['/tasks', this.id]);
-      });
+    if (this.isEdit && this.id) {
+      this.api.updateTask(this.id, taskForApi).subscribe(() => this.router.navigate(['/tasks']));
     } else {
-      this.taskService.createTask(payload).subscribe((t) => {
-        // Navigate to the created task's detail page if ID is returned; otherwise go to list
-        const target = t && (t as any).id ? ['/tasks', (t as any).id] : ['/tasks'];
-        this.router.navigate(target);
-      });
+      this.api.createTask(taskForApi).subscribe((t: Task) => this.router.navigate(['/tasks', t.id]));
     }
   }
 
-  cancel(): void {
-    this.router.navigate([this.id ? `/tasks/${this.id}` : '/tasks']);
+  cancel() {
+    this.router.navigate(['/tasks']);
   }
 }

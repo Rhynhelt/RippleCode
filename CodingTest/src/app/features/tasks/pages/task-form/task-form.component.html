@@ -1,66 +1,48 @@
-<div class="task-form-container">
-  <h2>{{ id ? 'Edit Task' : 'Create New Task' }}</h2>
+<form [formGroup]="form" class="form">
+  <h2>{{ isEdit ? 'Edit Task' : 'New Task' }}</h2>
 
-  <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
-    <mat-form-field appearance="outline">
-      <mat-label>Title</mat-label>
-      <input matInput formControlName="title" required />
-      <mat-error *ngIf="fc['title'].touched && fc['title'].hasError('required')">
-        Title is required
-      </mat-error>
-      <mat-error *ngIf="fc['title'].hasError('maxlength')">
-        Max 120 characters
-      </mat-error>
-    </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title" required />
+    <mat-error *ngIf="form.controls.title.hasError('required')">Title is required</mat-error>
+    <mat-error *ngIf="form.controls.title.hasError('maxlength')">Max 120 characters</mat-error>
+  </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Description</mat-label>
-      <textarea matInput formControlName="description" rows="4"></textarea>
-    </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Description</mat-label>
+    <textarea matInput rows="4" formControlName="description"></textarea>
+  </mat-form-field>
 
+  <div class="row">
     <mat-form-field appearance="outline">
       <mat-label>Due Date</mat-label>
       <input matInput [matDatepicker]="picker" formControlName="dueDate" />
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
-      <mat-error *ngIf="fc['dueDate'].hasError('pastDate')">
-        Due date cannot be in the past
-      </mat-error>
+      <mat-error *ngIf="form.controls.dueDate.hasError('pastDate')">Due date cannot be in the past</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Priority</mat-label>
       <mat-select formControlName="priority" required>
-        <mat-option value="Low">Low</mat-option>
-        <mat-option value="Medium">Medium</mat-option>
-        <mat-option value="High">High</mat-option>
+        <mat-option *ngFor="let p of priorities" [value]="p">{{ p }}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Status</mat-label>
       <mat-select formControlName="status" required>
-        <mat-option value="Pending">Pending</mat-option>
-        <mat-option value="InProgress">In Progress</mat-option>
-        <mat-option value="Completed">Completed</mat-option>
+        <!-- IMPORTANT: values are the exact enum strings the API expects -->
+        <mat-option *ngFor="let s of statuses" [value]="s">{{ label(s) }}</mat-option>
       </mat-select>
     </mat-form-field>
+  </div>
 
-    <div class="actions">
-      <button mat-button type="button" (click)="cancel()">Cancel</button>
-      <span class="flex-1"></span>
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="taskForm.invalid || !isOnline"
-      >
-        {{ id ? 'Save' : 'Create' }}
-      </button>
-    </div>
-
-    <div *ngIf="!isOnline" class="offline-hint">
-      You are offline. Save is disabled.
-    </div>
-  </form>
-</div>
+  <div class="actions">
+    <button mat-stroked-button type="button" (click)="cancel()">Back</button>
+    <span class="flex-1"></span>
+    <button mat-flat-button color="primary" type="button" (click)="save()">
+      {{ isEdit ? 'Save' : 'Create' }}
+    </button>
+  </div>
+</form>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TaskService } from '../../../../services/task.service';
 import { Task } from '../../../../models/task.model';
@@ -9,23 +9,36 @@ import { Task } from '../../../../models/task.model';
   styleUrls: ['./task-detail.component.scss']
 })
 export class TaskDetailComponent implements OnInit {
-  id!: number;
-  task?: Task;
-  error?: string;
-  loading = true;
+  // Angular DI via inject() avoids “used before initialization” issues
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private api = inject(TaskService);
 
-  constructor(private route: ActivatedRoute, private router: Router, private api: TaskService) {}
+  loading = true;
+  error?: string;
+  task?: Task;
 
   ngOnInit(): void {
-    this.id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!this.id) { this.error = 'Invalid task id.'; this.loading = false; return; }
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const id = Number(idParam);
 
-    this.api.getTask(this.id).subscribe({
-      next: t => { this.task = t; this.loading = false; },
+    if (!id || Number.isNaN(id)) {
+      this.error = 'Invalid task id';
+      this.loading = false;
+      return;
+    }
+
+    this.api.getTask(id).subscribe({
+      next: (t) => { this.task = t; this.loading = false; },
       error: () => { this.error = 'Failed to load task'; this.loading = false; }
     });
   }
 
-  edit() { this.router.navigate(['/tasks', this.id, 'edit']); }
-  back() { this.router.navigate(['/tasks']); }
+  edit(): void {
+    if (this.task) this.router.navigate(['/tasks', this.task.id, 'edit']);
+  }
+
+  back(): void {
+    this.router.navigate(['/tasks']);
+  }
 }
