@@ -16,7 +16,7 @@ export class TaskListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['title', 'dueDate', 'priority', 'status', 'actions'];
   dataSource = new MatTableDataSource<Task>([]);
 
-  // filter options (match your model values)
+  // filter options (match model values)
   priorities: Array<Task['priority']> = ['Low', 'Medium', 'High'];
   statuses: Array<Task['status']> = ['Pending', 'InProgress', 'Completed'];
 
@@ -63,7 +63,6 @@ export class TaskListComponent implements OnInit, AfterViewInit {
   }
 
   loadTasks(): void {
-    // No params (keeps compatibility with your current service)
     this.taskService.getTasks().subscribe(tasks => {
       this.dataSource.data = tasks || [];
       this.applyFilter();
@@ -81,11 +80,9 @@ export class TaskListComponent implements OnInit, AfterViewInit {
   }
 
   pageChange(): void {
-    // MatTableDataSource + MatPaginator handle paging automatically; nothing else needed
   }
 
   sortChange(): void {
-    // MatTableDataSource + MatSort handle sorting automatically; nothing else needed
   }
 
   deleteTask(id: number): void {

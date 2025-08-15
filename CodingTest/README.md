@@ -11,21 +11,22 @@ SQL: localhost,1433 (sa/Your_password123)
 - Deploy: Docker & docker-compose
 
 Notes:
-Server-side filtering/sorting/pagination to support large datasets.
+`Server-side filtering/sorting/pagination to support large datasets.
 Enums serialized as strings for readability.
 Basic global error middleware returns Problem Details.
 Offline banner uses navigator.onLine; requests aren’t queued offline.
-Unit test service methods (API and Angular)
-E2E tests for create/edit/delete flows
-
+Unit test service methods (API and Angular).
+E2E tests for create/edit/delete flows.
+`
 ## Initial Setup Instructions
 1. Clone the repository
 2. Install dependencies:
    ```bash
    npm install
    ```
+   You will also need docker desktop.
 3. Start the development server:
-      Direct your attention towards "Backend Database Setup" and "Frontend Setup" below
+      Direct your attention towards "Docker Setup" below
 4. Navigate to `http://localhost:4200` in your browser
 
 ## Prerequisites
@@ -33,17 +34,16 @@ E2E tests for create/edit/delete flows
 - Angular CLI (v17 or later)
 - npm (v8 or later)
 
-## Backend Database & Migration Setup:
+## Docker Setup:
 ```
-bash
-cd backend
-dotnet restore
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-dotnet run```
+# from the repo root
+docker compose down
+docker compose build --no-cache api
+docker compose up -d db api web
 
-## Frontend Setup:
-Not much different here really. Enter the root folder and start Angular via: ng serve
+# if you'd like to stare at API logs you can do the following:
+docker compose logs -f api
+```
 
 ## API Documentation:
 To view the entire API, simply go to http://localhost:5000/swagger and you'll be able to see all the potential details you'd need, including request testing.
@@ -142,33 +142,26 @@ repo/
       ├─ app.config.server.ts
       ├─ app.config.ts
       └─ app.routes.ts
-      ```
+```
 
 
 ## Database Schema
+```
 Table: Tasks
-
 Id (int, PK, identity)
-
 Title (nvarchar(120), required)
-
 Description (nvarchar(max))
-
 DueDate (datetime2, nullable)
-
 Priority (nvarchar(24))
-
 Status (nvarchar(24))
-
 CreatedAt (datetime2)
-
 UpdatedAt (datetime2)
-
+```
 
 ## Completed Development Tasks
-Completed Tasks: 1 - 2 - 3 - 4 - 5 - 6* - 7 - 8** - 9 - 10
-* Some of the unique SQL queries I never got around to making. However, I did achieve similar or identical functions through other methods.
-** Incorrect dates or backend fault will respond with a popup for the user as well as confirmation prior to deletion.
+Completed Tasks: 1 - 2 - 3 - 4 - 5 - 6* - 7 - 8* - 9 - 10
+* 6: Some of the unique SQL queries I never got around to making. However, I did achieve similar or identical functions through other methods.
+* 8: Incorrect dates or backend fault will respond with a popup for the user as well as confirmation prior to deletion.
 
 Below is were the standard statements that specified what was expected at a minimum and I'll include them here since they were covered in the project.
 
@@ -182,3 +175,10 @@ Below is were the standard statements that specified what was expected at a mini
 3. Add form validation and error handling
 
 4. Implement sorting and filtering in the task list
+
+## Challenges / Additions
+Ports & HTTPS: Dev runs on HTTP:5000 to avoid HTTPS redirect issues, code and system conflict expected https.
+Enum Normalization: Frontend interceptor + server filter normalization accept UI labels and map to API enums. It appears differently on frontend versus backend so this was needed to standardize.
+Animations: Enabled to support Angular Material’s form-field messages.
+DB Options: Supports both LocalDB and Dockerized SQL.
+Containers: Dockerfiles and docker-compose.yml added for local development and easy deployment.
