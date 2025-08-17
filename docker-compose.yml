@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: task-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Your_password123"
+    ports: ["1433:1433"]
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: task-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=TaskDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+      Cors__Frontend: "http://localhost:4200"
+    depends_on:
+      db:
+        condition: service_started   
+    ports: ["5000:5000"]
+
+  web:
+    build:
+      context: .
+      dockerfile: front.Dockerfile
+    container_name: task-web
+    depends_on: [api]
+    ports: ["4200:80"]
