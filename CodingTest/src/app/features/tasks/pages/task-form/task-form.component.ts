@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Task } from '../../../../models/task.model';
 import { TaskService } from '../../../../services/task.service';
 
-// Inline validator to avoid extra imports/files
+// to avoid extra imports/files
 function dueDateNotPast(control: AbstractControl): ValidationErrors | null {
   const v = control.value as Date | null;
   if (!v) return null;
@@ -28,18 +28,16 @@ export class TaskFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    // Build form in constructor to avoid "used before initialization"
     this.taskForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(120)]],
       description: [''],
       dueDate: [null, [dueDateNotPast]],
-      // keep values aligned with your model/service
       priority: ['Medium', Validators.required],
       status: ['Pending', Validators.required]
     });
   }
 
-  // Safe wrapper for template
+  // safe wrapper
   get isOnline(): boolean {
     return typeof navigator !== 'undefined' && navigator.onLine;
   }
@@ -51,7 +49,7 @@ export class TaskFormComponent implements OnInit {
     if (idParam && this.router.url.endsWith('/edit')) {
       this.id = Number(idParam);
       this.taskService.getTask(this.id).subscribe(task => {
-        // If backend returns ISO string for dueDate, Angular datepicker will still accept it
+        // in the case where backend returns dueDate = ISO string then Angular datepicker will still accept
         this.taskForm.patchValue(task);
       });
     }
@@ -71,7 +69,7 @@ export class TaskFormComponent implements OnInit {
       });
     } else {
       this.taskService.createTask(payload).subscribe((t) => {
-        // Navigate to the created task's detail page if ID is returned; otherwise go to list
+        // nav to created task's detail page if ID returned, otherwise go to list
         const target = t && (t as any).id ? ['/tasks', (t as any).id] : ['/tasks'];
         this.router.navigate(target);
       });

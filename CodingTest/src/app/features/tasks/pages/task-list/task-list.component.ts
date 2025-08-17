@@ -26,7 +26,6 @@ export class TaskListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private fb: FormBuilder, private taskService: TaskService) {
-    // Build form in constructor to avoid "used before initialization"
     this.filters = this.fb.group({
       title: [''],
       priority: [''],
@@ -34,13 +33,13 @@ export class TaskListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Safe wrapper for template (Angular strict templates don't know global navigator)
+  // Angular templates don't know global navigator
   get isOnline(): boolean {
     return typeof navigator !== 'undefined' && navigator.onLine;
   }
 
   ngOnInit(): void {
-    // Configure filtering logic
+    // filtering logic
     this.dataSource.filterPredicate = (data: Task, filterJson: string) => {
       const f = JSON.parse(filterJson || '{}') as { title?: string; priority?: string; status?: string };
       const matchesTitle =
@@ -50,10 +49,10 @@ export class TaskListComponent implements OnInit, AfterViewInit {
       return matchesTitle && matchesPriority && matchesStatus;
     };
 
-    // React to filter changes
+    // react to filter
     this.filters.valueChanges.pipe(debounceTime(200)).subscribe(() => this.applyFilter());
 
-    // Initial load
+    // init load
     this.loadTasks();
   }
 

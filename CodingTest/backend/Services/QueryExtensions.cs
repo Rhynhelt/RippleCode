@@ -22,7 +22,7 @@ namespace TaskApi.Services
             {
                 var raw = query.Status.Trim();
 
-                // Normalize common labels/spaces to enum names
+                // normalize common labels/spaces to enum names
                 // e.g. "In Progress" -> "InProgress", "Pending" -> "Todo", "Completed" -> "Done"
                 var normalized = raw.Replace(" ", "", StringComparison.OrdinalIgnoreCase);
                 normalized = normalized.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "Todo" :

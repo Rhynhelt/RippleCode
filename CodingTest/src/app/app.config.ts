@@ -6,8 +6,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { enumNormalizerInterceptor } from './services/enum-normalizer.interceptor';
-
-// If you already have other interceptors, just add enumNormalizerInterceptor to that same array.
+ 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
@@ -15,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([
         enumNormalizerInterceptor
-        // , ...yourOtherInterceptors
+        
       ])
     ),
   ]

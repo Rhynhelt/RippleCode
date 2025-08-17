@@ -8,7 +8,7 @@ export class LoadingService {
   readonly loading$ = this._loading$.asObservable();
 
   private async emitAsync(value: boolean) {
-    // Defer to the next microtask to avoid ExpressionChangedAfterItHasBeenCheckedError
+    // to the next microtask to avoid "ExpressionChangedAfterItHasBeenCheckedError"
     await Promise.resolve();
     this._loading$.next(value);
   }
